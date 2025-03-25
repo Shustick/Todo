@@ -10,7 +10,11 @@ export default class App extends Component {
   maxId = 100;
 
   state = {
-    taskData: [this.createTodoTask('Притиер'), this.createTodoTask('Линтер'), this.createTodoTask('Хаски??')],
+    taskData: [
+      this.createTodoTask('Поесть', 30, 0),
+      this.createTodoTask('Запустить Жука', 0, 5),
+      this.createTodoTask('Купить салфетки', 15, 21),
+    ],
     filterSelected: 'btn-all',
   };
 
@@ -18,13 +22,17 @@ export default class App extends Component {
     this.setState({ filterSelected: filter });
   };
 
-  createTodoTask(description) {
+  createTodoTask(description, min, sec) {
     return {
       taskClass: null,
       description,
       createdAt: new Date(),
       done: false,
       id: this.maxId++,
+      min,
+      sec,
+      isRunning: false,
+      timerId: null,
     };
   }
 
@@ -42,8 +50,8 @@ export default class App extends Component {
     });
   };
 
-  addTask = (text) => {
-    const newItem = this.createTodoTask(text);
+  addTask = (text, min, sec) => {
+    const newItem = this.createTodoTask(text, min, sec);
 
     this.setState(({ taskData }) => {
       const newArr = [...taskData, newItem];
@@ -100,6 +108,50 @@ export default class App extends Component {
     this.setState({ taskData: activeTasks });
   };
 
+  stopTimer = (id) => {
+    this.setState(({ taskData }) => {
+      const task = taskData.find((t) => t.id === id);
+      if (task?.timerId) clearInterval(task.timerId);
+
+      return {
+        taskData: taskData.map((t) => (t.id === id ? { ...t, isRunning: false, timerId: null } : t)),
+      };
+    });
+  };
+
+  startTimer = (id) => {
+    this.setState(({ taskData }) => {
+      const task = taskData.find((t) => t.id === id);
+      if (!task || task.isRunning) return null;
+
+      const timerId = setInterval(() => {
+        this.setState(({ taskData }) => {
+          return {
+            taskData: taskData.map((t) => {
+              if (t.id !== id) return t;
+
+              if (t.min === 0 && t.sec === 0) {
+                clearInterval(t.timerId);
+                return { ...t, isRunning: false, timerId: null };
+              }
+
+              let newSec = t.sec === 0 ? 59 : t.sec - 1;
+              let newMin = t.sec === 0 && t.min > 0 ? t.min - 1 : t.min;
+
+              if (newMin < 0) newMin = 0;
+
+              return { ...t, min: newMin, sec: newSec };
+            }),
+          };
+        });
+      }, 1000);
+
+      return {
+        taskData: taskData.map((t) => (t.id === id ? { ...t, isRunning: true, timerId } : t)),
+      };
+    });
+  };
+
   render() {
     const tasksWithFormattedTime = this.state.taskData.map((task) => ({
       ...task,
@@ -116,7 +168,17 @@ export default class App extends Component {
     const activeCount = tasksWithFormattedTime.filter((task) => task.done === false).length;
 
     return (
-      <section className="todoapp">
+      <section
+        className="todoapp"
+        onClick={(e) => {
+          if (e.target.name !== 'edit' || !e.target.name) {
+            const editingTask = this.state.taskData.find((task) => task.taskClass === 'editing');
+            if (editingTask) {
+              this.onSave(editingTask.id, 'Enter');
+            }
+          }
+        }}
+      >
         <Header addTask={this.addTask} />
         <section className="main">
           <TaskList
@@ -125,7 +187,10 @@ export default class App extends Component {
             onDeleted={this.deletItem}
             onEdit={this.editItem}
             onEditDescription={this.onEditDescription}
+            onTimer={this.onTimer}
             onSave={this.onSave}
+            startTimer={this.startTimer}
+            stopTimer={this.stopTimer}
           />
           <Footer
             filterSelected={this.state.filterSelected}

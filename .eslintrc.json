@@ -13,9 +13,11 @@
   ],
   "parser": "@babel/eslint-parser",
   "parserOptions": {
-    "ecmaVersion": 2020,
     "sourceType": "module",
-    "requireConfigFile": false // Отключение проверки конфигурации Babel для зависимостей
+    "requireConfigFile": false,
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
   "plugins": ["react", "prettier", "import"],
   "rules": {
@@ -44,7 +46,7 @@
       }
     },
     "react": {
-      "version": "detect" // Автоматически определяет версию React
+      "version": "detect"
     }
   },
   "globals": {

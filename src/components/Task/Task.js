@@ -1,13 +1,28 @@
 import PropTypes from 'prop-types';
 import './Task.css';
 
-const Task = ({ description, created, id, done, onCheckboxChange, onDeleted, onEdit }) => {
+import Timer from './Timer/Timer';
+
+const Task = ({
+  description,
+  created,
+  id,
+  done,
+  min,
+  sec,
+  onCheckboxChange,
+  onDeleted,
+  onEdit,
+  startTimer,
+  stopTimer,
+}) => {
   return (
     <div className="view">
       <input className="toggle" type="checkbox" checked={done} onChange={() => onCheckboxChange(id)} />
       <label>
-        <span className="description">{description}</span>
-        <span className="created">{created}</span>
+        <span className="title">{description}</span>
+        <Timer id={id} min={min} sec={sec} startTimer={startTimer} stopTimer={stopTimer} />
+        <span className="description">{created}</span>
       </label>
       <button className="icon icon-edit" onClick={onEdit}></button>
       <button className="icon icon-destroy" onClick={onDeleted}></button>

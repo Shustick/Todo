@@ -3,7 +3,16 @@ import PropTypes from 'prop-types';
 import Task from '../Task';
 import './TaskList.css';
 
-const TaskList = ({ taskData, onCheckboxChange, onDeleted, onEdit, onEditDescription, onSave }) => {
+const TaskList = ({
+  taskData,
+  onCheckboxChange,
+  onDeleted,
+  onEdit,
+  onEditDescription,
+  onSave,
+  startTimer,
+  stopTimer,
+}) => {
   const elements = taskData.map((item) => {
     return (
       <li key={item.id} className={item.taskClass}>
@@ -12,10 +21,13 @@ const TaskList = ({ taskData, onCheckboxChange, onDeleted, onEdit, onEditDescrip
           onCheckboxChange={onCheckboxChange}
           onDeleted={() => onDeleted(item.id)}
           onEdit={() => onEdit(item.id)}
+          startTimer={() => startTimer(item.id)}
+          stopTimer={() => stopTimer(item.id)}
         />
         {item.taskClass === 'editing' && (
           <input
             type="text"
+            name="edit"
             className="edit"
             value={item.description}
             onChange={(e) => onEditDescription(item.id, e.target.value)}

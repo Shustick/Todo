@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-
 import './Footer.css';
+
 import TasksFilter from '../TasksFilter';
 
 const Footer = ({ filterSelected, toggleFilter, deletCompletedTask, activeCount }) => {
