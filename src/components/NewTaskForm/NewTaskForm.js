@@ -1,81 +1,53 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './NewTaskForm.css';
 
-export default class NewTaskForm extends Component {
-  state = {
-    description: '',
-    minutes: '',
-    seconds: '',
+const NewTaskForm = ({ addTask }) => {
+  const [description, setDescription] = useState('');
+  const [minutes, setMinutes] = useState('');
+  const [seconds, setSeconds] = useState('');
+
+  const ondescriptionChange = (e) => {
+    setDescription(e.target.value);
   };
 
-  ondescriptionChange = (e) => {
-    this.setState({
-      description: e.target.value,
-    });
-  };
-
-  onMinChange = (e) => {
+  const onMinChange = (e) => {
     const value = e.target.value;
     if (value === '' || /^\d{0,3}$/.test(value)) {
-      this.setState({
-        minutes: value,
-      });
+      setMinutes(value);
     }
   };
 
-  onSecChange = (e) => {
+  const onSecChange = (e) => {
     const value = e.target.value;
     if (value === '' || /^[0-5]?[0-9]$/.test(value)) {
-      this.setState({
-        seconds: value,
-      });
+      setSeconds(value);
     }
   };
 
-  onKeyDown = (e) => {
+  const onKeyDown = (e) => {
     if (e.key === 'Enter') {
-      this.setState({
-        description: '',
-        minutes: '',
-        seconds: '',
-      });
-      const minutes = parseInt(this.state.minutes, 10) || 0;
-      const seconds = parseInt(this.state.seconds, 10) || 0;
+      setDescription('');
+      setMinutes('');
+      setSeconds('');
+      const finalMinutes = parseInt(minutes, 10) || 0;
+      const finalSeconds = parseInt(seconds, 10) || 0;
 
-      this.props.addTask(this.state.description, minutes, seconds);
+      addTask(description, finalMinutes, finalSeconds);
     }
   };
 
-  render() {
-    return (
-      <form className="new-todo-form" onKeyDown={this.onKeyDown}>
-        <input
-          className="new-todo"
-          placeholder="Task"
-          autoFocus
-          value={this.state.description}
-          onChange={this.ondescriptionChange}
-        />
-        <input
-          className="new-todo-form__timer"
-          placeholder="Min"
-          value={this.state.minutes}
-          onChange={this.onMinChange}
-          type="number"
-        />
-        <input
-          className="new-todo-form__timer"
-          placeholder="Sec"
-          value={this.state.seconds}
-          onChange={this.onSecChange}
-          type="number"
-        />
-      </form>
-    );
-  }
-}
+  return (
+    <form className="new-todo-form" onKeyDown={onKeyDown}>
+      <input className="new-todo" placeholder="Task" autoFocus value={description} onChange={ondescriptionChange} />
+      <input className="new-todo-form__timer" placeholder="Min" value={minutes} onChange={onMinChange} type="number" />
+      <input className="new-todo-form__timer" placeholder="Sec" value={seconds} onChange={onSecChange} type="number" />
+    </form>
+  );
+};
 
 NewTaskForm.propTypes = {
   addTask: PropTypes.func.isRequired,
 };
+
+export default NewTaskForm;
